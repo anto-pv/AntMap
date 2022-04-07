@@ -1,0 +1,27 @@
+$fontfam : 'Roboto', sans-serif;
+$colprim: #39ff14;
+$colsec: #000000;
+$textprim: #000000;
+@mixin maintext() {
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 48px;
+    line-height: 56px;
+    color: #007CC7;
+    margin-top: 1%;
+}
+@mixin resp() {
+    @include respond(tab-land) {
+        font-size: 16px;
+        padding: 15% 0 5% 7%;
+    }
+    @include respond(tab-port) {
+        font-size: 14px;
+        padding: 0 0 7% 5%;
+    }
+    @include respond(phone) {
+        font-size: 8px;
+        padding: 0 0 7% 5%;
+    }
+}

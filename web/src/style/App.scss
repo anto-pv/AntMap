@@ -1,0 +1,18 @@
+@import './components/variables.scss';
+@import './mixins';
+@import './components/header.scss';
+@import './components/map.scss';
+.App{
+    background-color: $colprim;
+    color: $textprim;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    @include respond(phone) {
+        .body img{
+            width: 50%;
+        }
+    }
+}
+*{
+    margin:0;
+    padding:0;
+}
