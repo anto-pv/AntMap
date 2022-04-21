@@ -4,12 +4,12 @@ import {
   Marker,
   Autocomplete,
   DirectionsRenderer,
-  Geocode,
 } from '@react-google-maps/api'
 import { useRef, useState } from 'react'
+import Polyline from '@mapbox/polyline';
 
 const center = { lat: 10.0603, lng: 76.6352 }
-const matrixpoints = [];
+
 
 function App() {
   const { isLoaded } = useJsApiLoader({
@@ -32,11 +32,10 @@ function App() {
   }
 
   async function calculateRoute() {
-    matrixpoints.push(originRef.current.value);
-    matrixpoints.push(destiantionRef.current.value);
     if (originRef.current.value === '' || destiantionRef.current.value === '') {
       return
     }
+    
     // eslint-disable-next-line no-undef
     const directionsService = new google.maps.DirectionsService()
     const results = await directionsService.route({
@@ -45,17 +44,189 @@ function App() {
       // eslint-disable-next-line no-undef
       travelMode: google.maps.TravelMode.DRIVING,
     })
-    console.log(originRef);
-    for (let i = 0; i < results.routes[0].legs[0].steps.length; i++) {
-      let post =results.routes[0].legs[0].steps[i].end_location.lat;
-      let long =results.routes[0].legs[0].steps[i].end_location.lng;
-      matrixpoints.push({post,long});
+    //setting lattitude and longititude for matrix entry
+
+    const sLat = results.routes[0].legs[0].start_location.lat();
+    const sLong =  results.routes[0].legs[0].start_location.lng();
+
+    const pointMap = new Map([[String([sLat,sLong]),0]]);
+    var distMat = new Array();
+    distMat[pointMap.size-1] = new Array();
+    let len = results.routes[0].legs[0].steps.length;
+
+    //route on west waypoint
+    const wResults = await directionsService.route({
+      origin: originRef.current.value,
+      destination: destiantionRef.current.value,
+      // eslint-disable-next-line no-undef
+      waypoints: [{location:new google.maps.LatLng(sLat,sLong-0.1)}],
+      // eslint-disable-next-line no-undef
+      travelMode: google.maps.TravelMode.DRIVING,
+    })
+    console.log(wResults)
+
+    //route on east waypoint    
+    const eResults = await directionsService.route({
+      origin: originRef.current.value,
+      destination: destiantionRef.current.value,
+      // eslint-disable-next-line no-undef
+      waypoints: [{location:new google.maps.LatLng(sLat,sLong+0.1)}],
+      // eslint-disable-next-line no-undef
+      travelMode: google.maps.TravelMode.DRIVING,
+    })  
+
+    //route on south waypoint
+    const sResults = await directionsService.route({
+      origin: originRef.current.value,
+      destination: destiantionRef.current.value,
+      // eslint-disable-next-line no-undef
+      waypoints: [{location:new google.maps.LatLng(sLat-0.1,sLong)}],
+      // eslint-disable-next-line no-undef
+      travelMode: google.maps.TravelMode.DRIVING,
+    })  
+
+    //route on north waypoint
+    const nResults = await directionsService.route({
+      origin: originRef.current.value,
+      destination: destiantionRef.current.value,
+      // eslint-disable-next-line no-undef
+      waypoints: [{location:new google.maps.LatLng(sLat+0.1,sLong)}],
+      // eslint-disable-next-line no-undef
+      travelMode: google.maps.TravelMode.DRIVING,
+    })  
+    
+    let pointMapSize = pointMap.size; 
+    for (let i = 0; i < len; i++) {
+      let post =results.routes[0].legs[0].steps[i].end_location.lat();
+      let long =results.routes[0].legs[0].steps[i].end_location.lng();
+      //test
+      if(!pointMap.has(String([post,long]))){
+        pointMap.set(String([post,long]),pointMapSize++);
+        distMat[pointMap.size-1] = new Array();
+      }
+      let origPost = results.routes[0].legs[0].steps[i].start_location.lat();
+      let origLong = results.routes[0].legs[0].steps[i].start_location.lng();
+      if(i===0){
+        origPost = sLat;
+        origLong = sLong;
+      }
+      //console.log(pointMap.get(String([post,long])))
+      distMat[pointMap.get(String([origPost,origLong]))][pointMap.get(String([post,long]))] = results.routes[0].legs[0].steps[i].distance.value;
+      //distPoints.push(results.routes[0].legs[0].steps[i].distance.value);
     };
-    console.log(matrixpoints);
+    console.log("pointmap",pointMap)
+    console.log(results);
+    let wlen =0; 
+    for (let i = 0; i < wResults.routes[0].legs[0].steps.length; i++) {
+      let post =wResults.routes[0].legs[0].steps[i].end_location.lat();
+      let long =wResults.routes[0].legs[0].steps[i].end_location.lng();
+      if(!pointMap.has(String([post,long]))){
+        pointMap.set(String([post,long]),pointMapSize++);
+        distMat[pointMap.size-1] = new Array();
+      }
+      let origPost = wResults.routes[0].legs[0].steps[i].start_location.lat();
+      let origLong = wResults.routes[0].legs[0].steps[i].start_location.lng();
+      if(i===0){
+        origPost = sLat;
+        origLong = sLong;
+      }
+      //console.log(pointMap.get(String([origPost,origLong])),pointMap,String([origPost,origLong]),i)
+      distMat[pointMap.get(String([origPost,origLong]))][pointMap.get(String([post,long]))] = wResults.routes[0].legs[0].steps[i].distance.value;
+      
+    };
+  
+    let elen =0;
+    for (let i = 0; i < eResults.routes[0].legs[0].steps.length; i++) {
+      let post =eResults.routes[0].legs[0].steps[i].end_location.lat();
+      let long =eResults.routes[0].legs[0].steps[i].end_location.lng();
+      if(!pointMap.has(String([post,long]))){
+        pointMap.set(String([post,long]),pointMapSize++);
+        distMat[pointMap.size-1] = new Array();
+      }
+      
+      let origPost = eResults.routes[0].legs[0].steps[i].start_location.lat();
+      let origLong = eResults.routes[0].legs[0].steps[i].start_location.lng();
+      if(i===0){
+        origPost = sLat;
+        origLong = sLong;
+      }
+      //console.log(pointMap.get(String([post,long])))
+      distMat[pointMap.get(String([origPost,origLong]))][pointMap.get(String([post,long]))] = eResults.routes[0].legs[0].steps[i].distance.value;
+      
+    };
+    
+    let slen =0;
+    for (let i = 0; i < sResults.routes[0].legs[0].steps.length; i++) {
+      let post =sResults.routes[0].legs[0].steps[i].end_location.lat();
+      let long =sResults.routes[0].legs[0].steps[i].end_location.lng();
+      if(!pointMap.has(String([post,long]))){
+        pointMap.set(String([post,long]),pointMapSize++);
+        distMat[pointMap.size-1] = new Array();
+      }
+      let origPost = sResults.routes[0].legs[0].steps[i].start_location.lat();
+      let origLong = sResults.routes[0].legs[0].steps[i].start_location.lng();
+      if(i===0){
+        origPost = sLat;
+        origLong = sLong;
+      }
+      //console.log(pointMap.get(String([post,long])))
+      distMat[pointMap.get(String([origPost,origLong]))][pointMap.get(String([post,long]))] = sResults.routes[0].legs[0].steps[i].distance.value;
+      
+    };
+
+    let nlen =0;
+    for (let i = 0; i < nResults.routes[0].legs[0].steps.length; i++) {
+      let post =nResults.routes[0].legs[0].steps[i].end_location.lat();
+      let long =nResults.routes[0].legs[0].steps[i].end_location.lng();
+      if(!pointMap.has(String([post,long]))){
+        pointMap.set(String([post,long]),pointMapSize++);
+        distMat[pointMap.size-1] = new Array();
+      }
+      let origPost = nResults.routes[0].legs[0].steps[i].start_location.lat();
+      let origLong = nResults.routes[0].legs[0].steps[i].start_location.lng();
+      if(i===0){
+        origPost = sLat;
+        origLong = sLong;
+      }
+      //console.log(pointMap.get(String([post,long])))
+      distMat[pointMap.get(String([origPost,origLong]))][pointMap.get(String([post,long]))] = nResults.routes[0].legs[0].steps[i].distance.value;
+      
+    };
+
+   
+    // var wResults = await directionsService.route({
+    //   origin: sLat+0.1,sLong,
+    //   destination: destiantionRef.current.value,
+    //   waypoints: ,
+    //   travelMode: google.maps.TravelMode.DRIVING,
+    // })  
+    //var matrixLen = distmatrix.length();
+    console.log(pointMap)
+    // console.log(distMat[7]);
+    // distMat.forEach(myFunction);
+    
+    // function myFunction(a) {
+    //   distMat = Array.from(a, item => item || 0);
+    // }
+    console.log(distMat);
+    console.log("dgd",randomFunc(distMat));
     setDirectionsResponse(results)
     setDistance(results.routes[0].legs[0].distance.p)
     setDuration(results.routes[0].legs[0].duration.p)
   }
+
+  function randomFunc(myArr) {  
+        
+    var l = myArr.length, temp, index;  
+    while (l > 0) {  
+       index = Math.floor(Math.random() * l);  
+       l--;  
+       temp = myArr[l];          
+       myArr[l] = myArr[index];          
+       myArr[index] = temp;      
+    }    
+    return myArr;    
+ } 
 
   function clearRoute() {
     setDirectionsResponse(null)
