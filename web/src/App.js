@@ -113,6 +113,7 @@ function App() {
       //console.log(pointMap.get(String([post,long])))
       distMat[pointMap.get(String([origPost,origLong]))][pointMap.get(String([post,long]))] = results.routes[0].legs[0].steps[i].distance.value;
       //distPoints.push(results.routes[0].legs[0].steps[i].distance.value);
+      console.log(post,long)
     };
     console.log("pointmap",pointMap)
     console.log(results);
@@ -201,15 +202,51 @@ function App() {
     //   travelMode: google.maps.TravelMode.DRIVING,
     // })  
     //var matrixLen = distmatrix.length();
-    console.log(pointMap)
+    // console.log({pointMap})
     // console.log(distMat[7]);
     // distMat.forEach(myFunction);
     
     // function myFunction(a) {
     //   distMat = Array.from(a, item => item || 0);
     // }
+    //console.log(distMat);
+    // console.log(distMat[0][0]);
+    //bonnie
+    // const resultDistMat = distMat.map(arr => {
+    //   const firstArr = arr.map(item => {
+    //     // console.log("type", item);
+    //     if (item <=0) {
+    //       return "np.inf";
+    //     } else {
+    //       console.log("srdga");
+    //       return item;
+    //     }
+    //   })
+    //   return firstArr;
+    // });
+    for(let i=0; i<pointMap.size; i++){
+      for(let j =0; j<pointMap.size; j++ ){
+        if(!(distMat[i][j]>0)){
+          if(distMat[j][i]>0){
+            distMat[i][j]=distMat[j][i];
+          }
+          else{
+            distMat[i][j]="np.inf";
+          }
+        }
+        //console.log(distMat[i][j]);
+      }
+    }
     console.log(distMat);
-    console.log("dgd",randomFunc(distMat));
+    for(let i=0; i<pointMap.size; i++){
+      var art = "";
+      for(let j =0; j<pointMap.size; j++ ){
+        art+=String(distMat[i][j])
+      }
+      console.log(art);
+    }
+    // console.log({resultDistMat});
+    //console.log("dgd",randomFunc(distMat));
     setDirectionsResponse(results)
     setDistance(results.routes[0].legs[0].distance.p)
     setDuration(results.routes[0].legs[0].duration.p)
