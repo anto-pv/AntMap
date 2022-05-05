@@ -4,7 +4,7 @@ import React from 'react';
 const Map =() =>{
     const uluru = { lat: 10.0603, lng: 76.6352 };
     const { isLoaded } = useLoadScript({
-        googleMapsApiKey: 'AIzaSyD-R-iimUeUMWoUApy66q_MqFfQioQhz9A',
+        googleMapsApiKey: process.env.GOOGLE_API,
     });
     if (!isLoaded) return <div>Loading...</div>;
     return (
