@@ -7,7 +7,7 @@ import {
   } from '@react-google-maps/api'
   import { useRef, useState } from 'react'
   const center = { lat: 10.0603, lng: 76.6352 }
-  
+
 const MapBox = () => {
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: 'AIzaSyD-R-iimUeUMWoUApy66q_MqFfQioQhz9A',
@@ -43,6 +43,7 @@ const MapBox = () => {
           // eslint-disable-next-line no-undef
           travelMode: google.maps.TravelMode.DRIVING,
         })
+        console.log(results)
         //setting lattitude and longititude for matrix entry
     
         const sLat = results.routes[0].legs[0].start_location.lat();
@@ -134,24 +135,26 @@ const MapBox = () => {
         
         // this is for backend needs 
 
-        distMatJson['waypoints'] = pointMap.size;
-        distMatJson['origin'] = pointMap.get(String([sLat,sLong]));
-        distMatJson['destination']  = pointMap.get(String([eLat,eLong]))
-        console.log(distMatJson,pointMap.get(String([sLat,sLong])),pointMap.get(String([eLat,eLong])));
+        var newDistMat ={};
+        newDistMat['matrix'] = distMatJson;
+        newDistMat['waypoints'] = pointMap.size;
+        newDistMat['origin'] = pointMap.get(String([sLat,sLong]));
+        newDistMat['destination']  = pointMap.get(String([eLat,eLong]))
+        console.log(newDistMat,pointMap.get(String([sLat,sLong])),pointMap.get(String([eLat,eLong])));
         //why post method is not working, need to install axios ?
         const response = await fetch('http://localhost:5000/distance',{
           mode: 'no-cors',
           method: 'POST',
-          body: distMatJson,
+          body: JSON.stringify(newDistMat),
           json: true,
           headers:{
             "Content-Type":"application/json"
           },
         });
 
-        if(response.ok){
-          console.log(response)
-        }
+        
+        console.log(response)
+        
 
         
 
