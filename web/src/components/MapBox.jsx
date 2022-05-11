@@ -6,6 +6,7 @@ import {
     DirectionsRenderer,
   } from '@react-google-maps/api'
   import { useRef, useState } from 'react'
+  import axios from "axios";
   const center = { lat: 10.0603, lng: 76.6352 }
 
 const MapBox = () => {
@@ -142,20 +143,19 @@ const MapBox = () => {
         newDistMat['destination']  = pointMap.get(String([eLat,eLong]))
         console.log(newDistMat,pointMap.get(String([sLat,sLong])),pointMap.get(String([eLat,eLong])));
         //why post method is not working, need to install axios ?
-        const response = await fetch('http://localhost:5000/distance',{
-          mode: 'no-cors',
+        const resp = await fetch('https://antmap.herokuapp.com/distance',{
           method: 'POST',
           body: JSON.stringify(newDistMat),
           json: true,
+          
           headers:{
-            "Content-Type":"application/json"
+            // Accept: 'application/json',
+            "Content-Type":"application/json",
+            // Origin : 'https://antmap.herokuapp.com'
           },
-        });
-
-        
-        console.log(response)
-        
-
+        })
+        const data = await resp.json();
+        console.log(data);
         
 
         setDirectionsResponse(results)
