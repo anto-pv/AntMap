@@ -6,7 +6,6 @@ import {
     DirectionsRenderer,
   } from '@react-google-maps/api'
   import { useRef, useState } from 'react'
-  import axios from "axios";
   const center = { lat: 10.0603, lng: 76.6352 }
 
 const MapBox = () => {
@@ -127,6 +126,12 @@ const MapBox = () => {
             };
           }
         }
+
+        //to get value from key for waypoint index to latlong conversion
+        function getKeyByValue(object, value) {
+          return Object.keys(object).find(key => object[key] === value);
+        }
+
         JsonConver(wResults);
         JsonConver(eResults);
         //console.log(eResults,distMatJson);
@@ -157,10 +162,37 @@ const MapBox = () => {
         const data = await resp.json();
         console.log(data);
         
+        var  trep = data['path'].substring(1,data['path'].length-1)
+        trep = trep.split("(").join("[");
+        trep = trep.split(")").join("]");
+        const fwayp = JSON.parse("["+trep+"]");
 
-        setDirectionsResponse(results)
-        setDistance(results.routes[0].legs[0].distance.p)
-        setDuration(results.routes[0].legs[0].duration.p)
+        //Finding final route with given waypoints from api-aco
+        let wapt = [];
+        for(let i=1; i<fwayp.length-1; i++){
+          // console.log(pointMap.prototype.keys());
+          // console.log(pointMap,Object.keys(pointMap));
+          pointMap.forEach((value, key) => {
+            if(value===i){
+              // eslint-disable-next-line no-undef
+              wapt.push({location:new google.maps.LatLng(key.split(',')[0],key.split(',')[1])})
+              return;
+            }
+          })
+        }
+        // console.log(wapt);
+        const finResults = await directionsService.route({
+          origin: originRef.current.value,
+          destination: destiantionRef.current.value,
+          // eslint-disable-next-line no-undef
+          waypoints: wapt,
+          // eslint-disable-next-line no-undef
+          travelMode: google.maps.TravelMode.DRIVING,
+        })  
+
+        setDirectionsResponse(finResults)
+        setDistance(finResults.routes[0].legs[0].distance.p)
+        setDuration(finResults.routes[0].legs[0].duration.p)
       }
     
       function clearRoute() {
