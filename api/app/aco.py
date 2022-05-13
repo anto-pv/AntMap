@@ -47,8 +47,8 @@ class AntColony(object):
             if not all_paths:
                 # print("Paths empty")
                 continue
-            print(f"\n{i+1} Iteration: ")
-            countDist(all_paths)
+            # print(f"\n{i+1} Iteration: ")
+            # countDist(all_paths)
             self.update_pheromone(all_paths, self.n_best, shortest_path= shortest_path)
             shortest_path = min(all_paths, key=lambda x: x[1])
             longest_path = max(all_paths, key=lambda x: x[1])
@@ -63,9 +63,9 @@ class AntColony(object):
                 # print(all_time_shortest_path)
                 continue
             if self.shaking:
-                print(f"\n{i+1} Iteration: ")
+                # print(f"\n{i+1} Iteration: ")
                 countDist(all_paths)
-                print(shortest_path)
+                # print(shortest_path)
             if shortest_path[1] < all_time_shortest_path[1]:
                 all_time_shortest_path = shortest_path
             #print(all_time_shortest_path)

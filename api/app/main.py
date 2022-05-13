@@ -1,12 +1,19 @@
 from flask import Flask
-from flask import request
+from flask import request,jsonify
 from flask_cors import CORS, cross_origin
 import numpy as np
 import json
 from .aco import AntColony
+from firebase_admin import credentials, firestore, initialize_app
 
 app = Flask(__name__)
 CORS(app)
+
+# Initialize Firestore DB
+cred = credentials.Certificate('key.json')
+default_app = initialize_app(cred)
+db = firestore.client()
+route_ref = db.collection('route')
 
 @app.route("/")
 def home_view():
@@ -36,7 +43,13 @@ def shortest_path():
     print(shortest_path[0])
     print("\nDistance :")
     print(shortest_path[1])
-    return{
+    result = {
         "path" : str(shortest_path[0]),
         "Distance" : str(shortest_path[1])
     }
+    yt = route_ref.add(result)
+    x = yt[1].path.split("/")
+    # todo = route_ref.document(x[1]).get()
+    # print(todo.__dict__)
+    result["id"] = x
+    return result
