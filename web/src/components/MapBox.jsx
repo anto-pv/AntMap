@@ -51,7 +51,7 @@ const MapBox = () => {
         const eLat = results.routes[0].legs[0].end_location.lat();
         const eLong =  results.routes[0].legs[0].end_location.lng();
     
-        const pointMap = new Map([[String([sLat,sLong]),0]]);
+        const pointMap = new Map([[String([sLat,sLong]),0],[String([eLat,eLong]),1]]);
         // var distMat = new Array();
         // distMat[pointMap.size-1] = new Array();
     
@@ -127,11 +127,6 @@ const MapBox = () => {
           }
         }
 
-        //to get value from key for waypoint index to latlong conversion
-        function getKeyByValue(object, value) {
-          return Object.keys(object).find(key => object[key] === value);
-        }
-
         JsonConver(wResults);
         JsonConver(eResults);
         //console.log(eResults,distMatJson);
@@ -139,14 +134,24 @@ const MapBox = () => {
         JsonConver(nResults);
         JsonConver(results);
         
-        // this is for backend needs 
+        // // this is for backend needs 
+        // const ordered = Object.keys(distMatJson).sort().reduce(
+        //   (obj, key) => { 
+        //     obj[key] = distMatJson[key]; 
+        //     return obj;
+        //   }, 
+        //   {}
+        // );
+        
 
         var newDistMat ={};
+        // console.log(distMatJson);
+        // console.log(JSON.stringify(ordered));
         newDistMat['matrix'] = distMatJson;
         newDistMat['waypoints'] = pointMap.size;
         newDistMat['origin'] = pointMap.get(String([sLat,sLong]));
         newDistMat['destination']  = pointMap.get(String([eLat,eLong]))
-        console.log(newDistMat,pointMap.get(String([sLat,sLong])),pointMap.get(String([eLat,eLong])));
+        // console.log(newDistMat,pointMap.get(String([sLat,sLong])),pointMap.get(String([eLat,eLong])));
         //why post method is not working, need to install axios ?
         const resp = await fetch('https://antmap.herokuapp.com/distance',{
           method: 'POST',
@@ -160,7 +165,7 @@ const MapBox = () => {
           },
         })
         const data = await resp.json();
-        console.log(data);
+        // console.log(data);
         
         var  trep = data['path'].substring(1,data['path'].length-1)
         trep = trep.split("(").join("[");
@@ -169,11 +174,12 @@ const MapBox = () => {
 
         //Finding final route with given waypoints from api-aco
         let wapt = [];
-        for(let i=1; i<fwayp.length-1; i++){
+        for(let i=1; i<fwayp.length; i++){
           // console.log(pointMap.prototype.keys());
           // console.log(pointMap,Object.keys(pointMap));
           pointMap.forEach((value, key) => {
-            if(value===i){
+            if(value===fwayp[i][0]){
+              // console.log(value);
               // eslint-disable-next-line no-undef
               wapt.push({location:new google.maps.LatLng(key.split(',')[0],key.split(',')[1])})
               return;
@@ -189,7 +195,7 @@ const MapBox = () => {
           // eslint-disable-next-line no-undef
           travelMode: google.maps.TravelMode.DRIVING,
         })  
-
+        // console.log(finResults);
         setDirectionsResponse(finResults)
         setDistance(finResults.routes[0].legs[0].distance.p)
         setDuration(finResults.routes[0].legs[0].duration.p)
