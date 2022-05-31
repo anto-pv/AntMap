@@ -29,8 +29,10 @@ def shortest_path():
     mat= np.empty((le,le))
     mat.fill(np.inf)
     for k in data['matrix']:
-        mat[int(k.split("-")[0]),int(k.split("-")[1])] =  data['matrix'][k]
-        mat[int(k.split("-")[1]),int(k.split("-")[0])] =  data['matrix'][k]
+        kl = k.split(',')
+        # print(type(kl[0]),type(kl[1]))
+        mat[int(kl[0]),int(kl[1])] =  data['matrix'][k]
+        mat[int(kl[1]),int(kl[0])] =  data['matrix'][k]
     # print(str(mat))
     # # return str(mat)
     # return "bfbs"
@@ -52,4 +54,7 @@ def shortest_path():
     # todo = route_ref.document(x[1]).get()
     # print(todo.__dict__)
     result["id"] = x
-    return result
+    try:
+        return result
+    finally:
+        print("dzh")

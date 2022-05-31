@@ -1,12 +1,19 @@
+import {Routes, Route} from 'react-router-dom';
+import Header from "./components/header";
 import MapBox from "./components/MapBox"
+import MRoute from './components/Route';
 import './style/App.scss';
 
 function App() {
 
   return (
-    <div className="App">
-      <MapBox/>
-    </div>
+      <div className="App">
+        <Header/>
+        <Routes>
+          <Route path="/" element={<MapBox/>}/>
+          <Route path="/route" element={<MRoute/>}/>
+        </Routes>
+      </div>
   )
 }
 

@@ -6,10 +6,9 @@ import {
     DirectionsRenderer,
   } from '@react-google-maps/api'
   import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
   const center = { lat: 10.0603, lng: 76.6352 }
 
-const MapBox = () => {
+const MRoute = () =>{
     const { isLoaded } = useJsApiLoader({
         googleMapsApiKey: 'AIzaSyD-R-iimUeUMWoUApy66q_MqFfQioQhz9A',
         libraries: ['places'],
@@ -24,7 +23,6 @@ const MapBox = () => {
       const originRef = useRef()
       /** @type React.MutableRefObject<HTMLInputElement> */
       const destiantionRef = useRef()
-
     
       if (!isLoaded) {
         return 'loading....';
@@ -34,6 +32,7 @@ const MapBox = () => {
         if (originRef.current.value === '' || destiantionRef.current.value === '') {
           return
         }
+
         //These are api fetches no need to consider go to line 100
         
         // eslint-disable-next-line no-undef
@@ -44,7 +43,7 @@ const MapBox = () => {
           // eslint-disable-next-line no-undef
           travelMode: google.maps.TravelMode.DRIVING,
         })
-        // console.log(results)
+        console.log(results)
         //setting lattitude and longititude for matrix entry
     
         const sLat = results.routes[0].legs[0].start_location.lat();
@@ -56,25 +55,6 @@ const MapBox = () => {
         // var distMat = new Array();
         // distMat[pointMap.size-1] = new Array();
     
-        //route on west waypoint
-        const wResults = await directionsService.route({
-          origin: originRef.current.value,
-          destination: destiantionRef.current.value,
-          // eslint-disable-next-line no-undef
-          waypoints: [{location:new google.maps.LatLng(sLat,sLong-0.1)}],
-          // eslint-disable-next-line no-undef
-          travelMode: google.maps.TravelMode.DRIVING,
-        })
-    
-        //route on east waypoint    
-        const eResults = await directionsService.route({
-          origin: originRef.current.value,
-          destination: destiantionRef.current.value,
-          // eslint-disable-next-line no-undef
-          waypoints: [{location:new google.maps.LatLng(sLat,sLong+0.1)}],
-          // eslint-disable-next-line no-undef
-          travelMode: google.maps.TravelMode.DRIVING,
-        })  
     
         //route on south waypoint
         const sResults = await directionsService.route({
@@ -86,15 +66,6 @@ const MapBox = () => {
           travelMode: google.maps.TravelMode.DRIVING,
         })  
     
-        //route on north waypoint
-        const nResults = await directionsService.route({
-          origin: originRef.current.value,
-          destination: destiantionRef.current.value,
-          // eslint-disable-next-line no-undef
-          waypoints: [{location:new google.maps.LatLng(sLat+0.1,sLong)}],
-          // eslint-disable-next-line no-undef
-          travelMode: google.maps.TravelMode.DRIVING,
-        })  
         
         var distMatJson ={};
         let pointMapSize = pointMap.size; 
@@ -128,15 +99,12 @@ const MapBox = () => {
           }
         }
 
-        JsonConver(wResults);
-        JsonConver(eResults);
-        //console.log(eResults,distMatJson);
         JsonConver(sResults);
-        JsonConver(nResults);
         JsonConver(results);
+        
 
         var newDistMat ={};
-        // console.log(Object.keys(distMatJson).length);
+        console.log(Object.keys(distMatJson).length);
         // console.log(JSON.stringify(ordered));
         newDistMat['matrix'] = distMatJson;
         newDistMat['waypoints'] = pointMap.size;
@@ -242,13 +210,13 @@ const MapBox = () => {
               </div>
     
               <div>
-                {/* <Link to="/route"> */}
-                  <button type='submit' onClick={calculateRoute}>Navigate</button>
-                {/* </Link> */}
+                <button type='submit' onClick={calculateRoute}>
+                  Navigate
+                </button>
                 <button
                   aria-label='center back'
                   onClick={clearRoute}
-                >Back</button>
+                />
               </div>
             </div>
             <div spacing={4} mt={4} justifyContent='space-between'>
@@ -266,6 +234,6 @@ const MapBox = () => {
           </div>
         </div>
       )
-}  
+}
 
- export default MapBox
+export default MRoute;
