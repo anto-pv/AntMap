@@ -41,13 +41,10 @@ class AntColony(object):
         allRoutes = None
         all_time_shortest_path = ("placeholder", np.inf)
         self.initial_pheromone()
-        #print(self.pheromone_matrix)
         for i in range(self.n_iterations):
             all_paths = self.get_all_paths(start, dest)
             if not all_paths:
                 continue
-            # print(f"\n{i+1} Iteration: ")
-            # countDist(all_paths)
             self.update_pheromone(all_paths, self.n_best, shortest_path= shortest_path)
             shortest_path = min(all_paths, key=lambda x: x[1])
             longest_path = max(all_paths, key=lambda x: x[1])
@@ -64,12 +61,6 @@ class AntColony(object):
                 self.find_shaking_nodes(self.distances, maxDist, p=0.2, startEdge=startEdge, endEdge=endEdge, updatedValue = updatedValue)
                 all_time_shortest_path = ("placeholder", np.inf)
                 continue
-
-            # if(i==2):
-            #     shaking= ShakingFunction(self.distances, self.pheromone_matrix, maxDist, p=0.2, startEdge= 6, endEdge= 8)
-            #     shaking.shaking_pheromones()
-            # print(maxDist)
-
             if (self.shaking and i==5):
                 pos = int(input("Enter position: "))
                 value = int(input("Enter value: "))
@@ -77,21 +68,11 @@ class AntColony(object):
                 self.find_link_shakenodes(self.distances, maxDist, p=0.2, node=pos)
                 all_time_shortest_path = ("placeholder", np.inf)
                 continue
-
-            # if self.shaking:
-            #     print(f"\n{i+1} Iteration: ")
-            #     # countDist(all_paths)
-            #     print(shortest_path)
             if shortest_path[1] < all_time_shortest_path[1]:
                 all_time_shortest_path = shortest_path
-            #self.pheromone *= self.decay
             print(f"\n{i+1} Iteration: ")
             print(all_time_shortest_path)
             self.pheromone_decay()
-            # allRoutes = all_paths
-        # td2 = datetime.datetime.now()
-        # time_diff = td2 - td1
-        # print(f"\nTime taken: {time_diff.total_seconds()}")
         return all_time_shortest_path
 
     def initial_pheromone(self):
@@ -167,27 +148,17 @@ class AntColony(object):
         return path
 
     def choose_node(self, pheromone, distance, visited):
-        #pheromone = np.copy(pheromone)
-        #print(pheromone)
-        # print(visited)
         for i in list(visited):
             pheromone[i] = 0
-        #pheromone[list(visited)] = 0
         if self.check_pheromone_empty(pheromone):
             return None
         prob_list=[]
         for j in range(len(distance)):
             row = (pheromone[j] ** self.alpha) * ((1.0 / distance[j]) ** self.beta) * ((1.0 / self.tqi[j]) ** self.gamma)
             prob_list.append(row)
-        #row = pheromone ** self.alpha * (( 1.0 / distance) ** self.beta)
-        #prob = row / row.sum()
         row_sum= sum(prob_list)
-        # print(row_sum)
         prob = [ p / row_sum for p in prob_list ]
-        # print(prob)
-        #print(self.index_list)
         next_node = np_choice(self.index_list, 1, p=prob)[0]
-        #print(next_node)
         return next_node
 
     def check_pheromone_empty(self, pheromone):
@@ -226,8 +197,6 @@ class AntColony(object):
         self.update_link_shakenodes(shaking_nodes_list)
         return shaking_nodes_list
 
-
-    #Shaking Function
     def update_shaking_nodes(self, shaking_nodes, a, b, v):
         for i in shaking_nodes:
             for j in range(len(self.distances)):
@@ -238,7 +207,6 @@ class AntColony(object):
             self.pheromone_matrix[a][b], self.pheromone_matrix[b][a]= 0,0
         else:
             self.pheromone_matrix[a][b], self.pheromone_matrix[b][a]= self.i_pheromone, self.i_pheromone
-        # self.pheromone_matrix[a][b], self.pheromone_matrix[b][a]= 0,0
 
     def update_link_shakenodes(self, shaking_nodes):
         for i in shaking_nodes:
