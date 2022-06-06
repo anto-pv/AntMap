@@ -36,10 +36,12 @@ def shortest_path():
     # print(str(mat))
     # # return str(mat)
     # return "bfbs"
-
     # after creating matrix the algorithm is need to be done inside route with content.desitation and content.origin json
-
-    ant_colony = AntColony(mat, 100, 1, 10, 0.95, alpha=1, beta=1)
+    aqi=[1]*le
+    aqi[29] = 9
+    # for i in range(le):
+        # aqi.append(data['trafficIndex'][i])
+    ant_colony = AntColony(mat, aqi,100, 1, 10, 0.95, alpha=1, beta=1, gamma=5)
     shortest_path = ant_colony.get_route(start= int(data['origin']), dest= int(data['destination']), shaking=False)
     print("\nShortest Path :")
     print(shortest_path[0])
@@ -54,7 +56,4 @@ def shortest_path():
     # todo = route_ref.document(x[1]).get()
     # print(todo.__dict__)
     result["id"] = x
-    try:
-        return result
-    finally:
-        print("dzh")
+    return result

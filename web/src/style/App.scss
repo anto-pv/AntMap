@@ -7,12 +7,47 @@
     color: $textprim;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     @include respond(phone) {
-        .body img{
-            width: 50%;
+        display: none;
+    }
+    width: 99vw;
+    height: 98vh;
+    border: 1vh solid $colsec;
+    border-radius: 20px;
+    .screen{
+        display: flex;
+        flex-direction: row;
+        .carRoute{
+            display: flex;
+            align-items: center;
+            align-content: center;
+            justify-content: center;
+            width: 30%;
+            flex-direction: row;
+            flex-wrap: wrap;
+            .directions{
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                align-content: space-around;
+                justify-content: space-around;
+                .icons img{
+                    width: 20px;
+                }
+            }
+            .car{
+                margin-left: 38%;
+                align-items: center;
+                align-content: center;
+             img{
+                width: 50%;
+            }}
+            width: 30%;
+        }
+        .mapdis{
+            width: 70%;
         }
     }
-    width: 100vw;
-    height: 100vh;
+    
 }
 *{
     margin:0;

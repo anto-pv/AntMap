@@ -34,7 +34,7 @@ const MapBox = () => {
         if (originRef.current.value === '' || destiantionRef.current.value === '') {
           return
         }
-        //These are api fetches no need to consider go to line 100
+        var trafficInd=1654052280;
         
         // eslint-disable-next-line no-undef
         const directionsService = new google.maps.DirectionsService()
@@ -51,54 +51,71 @@ const MapBox = () => {
         const sLong =  results.routes[0].legs[0].start_location.lng();
         const eLat = results.routes[0].legs[0].end_location.lat();
         const eLong =  results.routes[0].legs[0].end_location.lng();
-    
         const pointMap = new Map([[String([sLat,sLong]),0],[String([eLat,eLong]),1]]);
+        var trafficjson = {"0": 1,"1": 1};
         // var distMat = new Array();
         // distMat[pointMap.size-1] = new Array();
-    
-        //route on west waypoint
-        const wResults = await directionsService.route({
+        var degrees2meters = function(lon,lat) {
+          var x = lon * 20037508.34 / 180;
+          var y = Math.log(Math.tan((90 + lat) * Math.PI / 360)) / (Math.PI / 180);
+          y = y * 20037508.34 / 180;
+          return x+","+y
+        }
+        var meters2degress = function(x,y) {
+          var lon = x *  180 / 20037508.34 ;
+          //thanks magichim @ github for the correction
+          var lat = Math.atan(Math.exp(y * Math.PI / 20037508.34)) * 360 / Math.PI - 90; 
+          return lon+","+lat
+        }
+        let trafficIndexListLen=0;
+        if(trafficInd===null){
+          //traffic index creation
+          async function getViewport(){
+            let reponse = await fetch('https://api.tomtom.com/traffic/services/4/incidentViewport/'+String(degrees2meters(sLat,sLong))+','+String(degrees2meters(eLat,eLong))+'/2/'+String(degrees2meters(sLat,sLong))+','+String(degrees2meters(eLat,eLong))+'/2/true/json?key=TllB5Rw1wrE1UZryxhfFoIhjd8EYIPlG');
+            let trafficdata = await reponse.json();
+            return trafficdata['viewpResp']['trafficState']['@trafficModelId'];
+         }
+         trafficInd = await getViewport();
+        //  console.log(trafficInd);
+        }
+        else{
+          async function getTraffic(){
+            let reponse = await fetch('https://api.tomtom.com/traffic/services/4/incidentDetails/s3/'+String(degrees2meters(sLat,sLong))+','+String(degrees2meters(eLat,eLong))+'/2/'+String(trafficInd)+'/json?key=TllB5Rw1wrE1UZryxhfFoIhjd8EYIPlG');
+            let trafficdata = await reponse.json();
+            return trafficdata['tm']['poi'];
+         }
+         let trafficIndciList = await getTraffic();
+         let trafficwapt={}
+         trafficIndexListLen = trafficIndciList.length;
+         if(trafficIndciList.length>0){
+           for(let i=0; i<trafficIndciList.length; ++i){
+            let k=pointMap.size;
+            let poinst = String(meters2degress([trafficIndciList[i]['p']['x'],trafficIndciList[i]['p']['y']]));
+            if(!pointMap.has(poinst)){
+              pointMap.set(poinst,k++);
+              trafficjson[String(k-1)]= trafficIndciList[i]['ty']+1;
+              //distMat[pointMap.size-1] = new Array();
+            }
+            var lon = trafficIndciList[i]['p']['x'] *  180 / 20037508.34 ;
+          //thanks magichim @ github for the correction
+            var lat = Math.atan(Math.exp(trafficIndciList[i]['p']['y'] * Math.PI / 20037508.34)) * 360 / Math.PI - 90; 
+            // eslint-disable-next-line no-undef
+            trafficwapt.push({location:new google.maps.LatLng(lon,lat)})
+           }
+         };
+        }
+        //route through the median
+        const mResults = await directionsService.route({
           origin: originRef.current.value,
           destination: destiantionRef.current.value,
           // eslint-disable-next-line no-undef
-          waypoints: [{location:new google.maps.LatLng(sLat,sLong-0.1)}],
+          waypoints: [{location:new google.maps.LatLng((sLat+eLat)/2,(sLong+eLong)/2)}],
           // eslint-disable-next-line no-undef
           travelMode: google.maps.TravelMode.DRIVING,
         })
-    
-        //route on east waypoint    
-        const eResults = await directionsService.route({
-          origin: originRef.current.value,
-          destination: destiantionRef.current.value,
-          // eslint-disable-next-line no-undef
-          waypoints: [{location:new google.maps.LatLng(sLat,sLong+0.1)}],
-          // eslint-disable-next-line no-undef
-          travelMode: google.maps.TravelMode.DRIVING,
-        })  
-    
-        //route on south waypoint
-        const sResults = await directionsService.route({
-          origin: originRef.current.value,
-          destination: destiantionRef.current.value,
-          // eslint-disable-next-line no-undef
-          waypoints: [{location:new google.maps.LatLng(sLat-0.1,sLong)}],
-          // eslint-disable-next-line no-undef
-          travelMode: google.maps.TravelMode.DRIVING,
-        })  
-    
-        //route on north waypoint
-        const nResults = await directionsService.route({
-          origin: originRef.current.value,
-          destination: destiantionRef.current.value,
-          // eslint-disable-next-line no-undef
-          waypoints: [{location:new google.maps.LatLng(sLat+0.1,sLong)}],
-          // eslint-disable-next-line no-undef
-          travelMode: google.maps.TravelMode.DRIVING,
-        })  
         
         var distMatJson ={};
         let pointMapSize = pointMap.size; 
-
         // since matrix cannot passed directly to backend it is converted to json  in form "1-2" : 455 km
 
         function JsonConver(fResults){
@@ -108,6 +125,7 @@ const MapBox = () => {
               let long =fResults.routes[0].legs[j].steps[i].end_location.lng();
               if(!pointMap.has(String([post,long]))){
                 pointMap.set(String([post,long]),pointMapSize++);
+                trafficjson[String(pointMapSize-1)]= 1;
                 //distMat[pointMap.size-1] = new Array();
               }
               let origPost = fResults.routes[0].legs[j].steps[i].start_location.lat();
@@ -128,12 +146,20 @@ const MapBox = () => {
           }
         }
 
-        JsonConver(wResults);
-        JsonConver(eResults);
-        //console.log(eResults,distMatJson);
-        JsonConver(sResults);
-        JsonConver(nResults);
+        JsonConver(mResults);
         JsonConver(results);
+        //route through traffic blocks
+        if(trafficIndexListLen!=0){
+          const tResults = await directionsService.route({
+            origin: originRef.current.value,
+            destination: destiantionRef.current.value,
+            // eslint-disable-next-line no-undef
+            waypoints: trafficwapt,
+            // eslint-disable-next-line no-undef
+            travelMode: google.maps.TravelMode.DRIVING,
+          });
+          JsonConver(tResults);
+        }
 
         var newDistMat ={};
         // console.log(Object.keys(distMatJson).length);
@@ -142,8 +168,11 @@ const MapBox = () => {
         newDistMat['waypoints'] = pointMap.size;
         newDistMat['origin'] = pointMap.get(String([sLat,sLong]));
         newDistMat['destination']  = pointMap.get(String([eLat,eLong]))
-        // console.log(newDistMat,pointMap.get(String([sLat,sLong])),pointMap.get(String([eLat,eLong])));
-
+        newDistMat['trafficIndex'] = trafficjson;
+        console.log(newDistMat,pointMap.get(String([sLat,sLong])),pointMap.get(String([eLat,eLong])));
+        // const originlat= sLat;
+        // console.log(originlat);
+        //https://antmap.herokuapp.com/
         const resp = await fetch('https://antmap.herokuapp.com/distance',{
           method: 'POST',
           body: JSON.stringify(newDistMat),
@@ -201,14 +230,14 @@ const MapBox = () => {
       }
     
       return (
-        <div
+        <div className='mapdis'
         >
           <div>
             {/* Google Map div */}
             <GoogleMap
               center={center}
               zoom={15}
-              mapContainerStyle={{ width: '60%', height: '60vh' }}
+              mapContainerStyle={{ width: '100%', height: '60vh' }}
               options={{
                 zoomControl: false,
                 streetViewControl: false,
