@@ -18,7 +18,9 @@ graph becomes unusable, the pheromone content in all the edges related to this c
 will change in such a way that the algorithm still selects the most optimal route. Thus any
 real-time problems will not cause any hindrance in finding the optimal path.
 
-<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Safari_ants.jpg/220px-Safari_ants.jpg" alt="ACO- Pheromone based ant routing" width="350" />
+<p align="center">
+<img src="./2.jpg" alt="ACO- Pheromone based ant routing" width="400" />
+</p>
 
 ## Ant Colony Optimization Algorithm
 
@@ -26,7 +28,8 @@ real-time problems will not cause any hindrance in finding the optimal path.
 <p>Ant colony optimization (ACO) is a population-based metaheuristic that can be used to find approximate solutions to difficult optimization problems.
 
 In ACO, a set of software agents called artificial ants search for good solutions to a given optimization problem. To apply ACO, the optimization problem is transformed into the problem of finding the best path on a weighted graph. The artificial ants (hereafter ants) incrementally build solutions by moving on the graph. The solution construction process is stochastic and is biased by a pheromone model, that is, a set of parameters associated with graph components (either nodes or edges) whose values are modified at runtime by the ants. 
-</>
+</p>
+
 [More about ACO algorithm](https://en.wikipedia.org/wiki/Ant_colony_optimization_algorithms)
 
 ## Implementation
@@ -40,3 +43,8 @@ In ACO, a set of software agents called artificial ants search for good solution
  └── ...
  ```
  
+ ## Result
+<p>The main issue addressed by existing methods is to find optimal path under dynamic road condition in high accuracy and relatively low computational cost. In the system, ACO calculates dynamic route between two location using their geographical data and traffic information's and rendered in the Map. At each interval the traffic conditions are fetched and  new optimal path is calculated.</p>
+<p align="center">
+<img src="./2.jpg" alt="ACO- Pheromone based ant routing" width="400" />
+</p>
