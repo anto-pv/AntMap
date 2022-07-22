@@ -18,7 +18,7 @@ graph becomes unusable, the pheromone content in all the edges related to this c
 will change in such a way that the algorithm still selects the most optimal route. Thus any
 real-time problems will not cause any hindrance in finding the optimal path.
 
-![ACO- Pheromone based ant routing](https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Safari_ants.jpg/220px-Safari_ants.jpg)
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/34/Safari_ants.jpg/220px-Safari_ants.jpg" alt="ACO- Pheromone based ant routing" width="350" />
 
 ## Ant Colony Optimization Algorithm
 
@@ -33,9 +33,10 @@ In ACO, a set of software agents called artificial ants search for good solution
 
 <p>For the project implementation the hardware as well as the software part is to be designed. The Hardware contains GPS Module for extracting current location which can be connected to a Wifi Module or inbuilt in device. For the software part it need a front-end which works as a Map interface and back-end for executing the ACO algorithm. For a source-destination pair the distance matrix and dynamic traffic conditions are passed as an API request to back-end and the optimal path is returned using ACO with pheromone updation and shaking.</p>
 
+```
  .
  ├── app     #for backend (ACO algorithm) implemented using FLASK
  ├── web     #for frontend interface using ReactJs
  └── ...
- 
+ ```
  
