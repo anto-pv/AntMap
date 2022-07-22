@@ -17,3 +17,10 @@ graph that makes it real-time adaptable. Shaking is the process in which when an
 graph becomes unusable, the pheromone content in all the edges related to this current edge
 will change in such a way that the algorithm still selects the most optimal route. Thus any
 real-time problems will not cause any hindrance in finding the optimal path.
+
+## Implementation
+
+This routing application has two phases, implementing ACO algorithm for backend and implementing a Map based interface for frontend. 
+so
+`/app` for backend
+`/web` for  frontend interface
