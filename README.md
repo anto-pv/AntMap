@@ -46,5 +46,5 @@ In ACO, a set of software agents called artificial ants search for good solution
  ## Result
 <p>The main issue addressed by existing methods is to find optimal path under dynamic road condition in high accuracy and relatively low computational cost. In the system, ACO calculates dynamic route between two location using their geographical data and traffic information's and rendered in the Map. At each interval the traffic conditions are fetched and  new optimal path is calculated.</p>
 <p align="center">
-<img src="./2.jpg" alt="ACO- Pheromone based ant routing" width="400" />
+<img src="./18.png" alt="Implementation" />
 </p>
